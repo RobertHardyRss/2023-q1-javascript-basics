@@ -33,18 +33,26 @@ let getRandomWord = function (a) {
 };
 
 let generateAdvice = function (a, h, v, adj, n) {
-	console.log(
-		getRandomWord(a),
-		getRandomWord(h),
-		getRandomWord(v),
-		getRandomWord(adj),
-		getRandomWord(n)
-	);
+	let randomAdvice =
+		getRandomWord(a) +
+		" " +
+		getRandomWord(h) +
+		" " +
+		getRandomWord(v) +
+		" " +
+		getRandomWord(adj) +
+		" " +
+		getRandomWord(n);
+
+	console.log(randomAdvice);
+
+	return randomAdvice;
 };
 
 //generateAdvice(advisors, howOften, verbs, adjectives, nouns);
 
 btn.addEventListener("click", function () {
 	//console.log("clicked!");
-	generateAdvice(advisors, howOften, verbs, adjectives, nouns);
+	let advice = generateAdvice(advisors, howOften, verbs, adjectives, nouns);
+	output.textContent = advice;
 });
