@@ -17,6 +17,23 @@ class Shape {
 		this.height = 100;
 
 		this.color = "red";
+
+		this.speed = 10;
+		this.xDirection = 1;
+		this.yDirection = 1;
+	}
+
+	update() {
+		if (this.x < 0 || this.x + this.width > canvas.width) {
+			this.xDirection *= -1;
+		}
+
+		if (this.y < 0 || this.y + this.height > canvas.height) {
+			this.yDirection *= -1;
+		}
+
+		this.x += this.speed * this.xDirection;
+		this.y += this.speed * this.yDirection;
 	}
 
 	draw() {
@@ -31,7 +48,6 @@ s1.draw();
 
 canvas.addEventListener("click", () => {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	s1.x += 10;
-	s1.y += 10;
+	s1.update();
 	s1.draw();
 });
