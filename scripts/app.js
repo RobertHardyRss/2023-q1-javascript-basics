@@ -42,12 +42,28 @@ class Shape {
 	}
 }
 
-let s1 = new Shape(0, 0);
+let shapes = [];
 
-s1.draw();
+for (let i = 0; i < 20; i++) {
+	let s = new Shape(
+		Math.random() * canvas.width,
+		Math.random() * canvas.height
+	);
 
-canvas.addEventListener("click", () => {
+	s.speed = Math.random() * 5 + 5;
+
+	shapes.push(s);
+}
+
+let animationLoop = function () {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	s1.update();
-	s1.draw();
-});
+
+	shapes.forEach((s) => {
+		s.update();
+		s.draw();
+	});
+
+	window.requestAnimationFrame(animationLoop);
+};
+
+window.requestAnimationFrame(animationLoop);
