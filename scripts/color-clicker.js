@@ -93,6 +93,7 @@ class ClickShape {
 class Game {
 	constructor() {
 		this.score = 0;
+		this.isGameOver = false;
 
 		this.colors = [
 			"red",
@@ -165,6 +166,24 @@ class Game {
 		this.shapes.forEach((s) => {
 			s.checkForClicked(x, y);
 		});
+
+		let clickedShapes = this.shapes.filter((s) => s.isClicked);
+		// console.log(clickedShapes);
+		// debugger;
+
+		if (clickedShapes.length === 0) {
+			return;
+		}
+
+		// get the last shape drawn that was clicked and see if it
+		// matches our target color
+		if (
+			clickedShapes[clickedShapes.length - 1].color === this.targetColor
+		) {
+			this.score++;
+		} else {
+			this.isGameOver = true;
+		}
 	}
 }
 
