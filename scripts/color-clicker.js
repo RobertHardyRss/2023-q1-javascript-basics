@@ -13,7 +13,7 @@ class ClickShape {
 		this.x = 0;
 		this.y = 0;
 
-		this.width = 10;
+		this.width = 50;
 
 		this.xDirection = 0;
 		this.yDirection = 1;
@@ -24,6 +24,9 @@ class ClickShape {
 		this.isClicked = true;
 
 		this.color = "silver";
+
+		/** @type {Path2D | undefined} */
+		this.path;
 	}
 
 	movingDirection() {
@@ -68,7 +71,11 @@ class ClickShape {
 
 	draw() {
 		ctx.fillStyle = this.color;
-		ctx.fillRect(this.x, this.y, this.width, this.width);
+
+		this.path = new Path2D();
+		this.path.rect(this.x, this.y, this.width, this.width);
+		ctx.fill(this.path);
+		//ctx.fillRect(this.x, this.y, this.width, this.width);
 	}
 }
 
@@ -106,6 +113,8 @@ class Game {
 			return; // leave, not enough time since last spawn
 		}
 
+		// console.log("in spawnShape");
+
 		// reset our last spawn time
 		this.lastSpawnTime = 0;
 
@@ -113,12 +122,11 @@ class Game {
 		s.color = this.getRandomColor();
 		s.y = 0 - s.width;
 
-		// this will give us a number between 0 and 70
-		let randX = Math.floor(
-			Math.random() * (canvas.width / s.width - s.width)
-		);
+		let randX = Math.floor(Math.random() * (canvas.width / s.width));
 
 		s.x = randX * s.width;
+
+		//console.log(s);
 
 		// push the new shape into our array
 		this.shapes.push(s);
@@ -130,6 +138,10 @@ class Game {
 		this.shapes.forEach((s) => {
 			s.update();
 		});
+
+		this.shapes = this.shapes.filter((s) => s.isVisible);
+
+		// console.log("length of shapes array", this.shapes.length);
 	}
 
 	draw() {
@@ -141,7 +153,7 @@ class Game {
 
 let game = new Game();
 
-console.log(game);
+//console.log(game);
 
 let currentTime = 0;
 
@@ -158,3 +170,7 @@ let gameLoop = function (timestamp) {
 };
 
 window.requestAnimationFrame(gameLoop);
+
+canvas.addEventListener("click", (ev) => {
+	console.log("mouse event", ev.offsetX, ev.offsetY);
+});
