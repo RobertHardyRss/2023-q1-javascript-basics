@@ -13,7 +13,7 @@ class ClickShape {
 		this.x = 0;
 		this.y = 0;
 
-		this.width = 50;
+		this.width = 100;
 
 		this.xDirection = 0;
 		this.yDirection = 1;
@@ -21,7 +21,7 @@ class ClickShape {
 		this.speed = 5;
 
 		this.isVisible = true;
-		this.isClicked = true;
+		this.isClicked = false;
 
 		this.color = "silver";
 
@@ -70,12 +70,23 @@ class ClickShape {
 	}
 
 	draw() {
-		ctx.fillStyle = this.color;
+		ctx.fillStyle = this.isClicked ? "silver" : this.color;
 
 		this.path = new Path2D();
 		this.path.rect(this.x, this.y, this.width, this.width);
 		ctx.fill(this.path);
 		//ctx.fillRect(this.x, this.y, this.width, this.width);
+	}
+
+	checkForClicked(x, y) {
+		if (this.isClicked) {
+			return; // leave if we are clicked so we can't be un-clicked
+		}
+
+		//@ts-ignore path will not be undefined here
+		this.isClicked = ctx.isPointInPath(this.path, x, y);
+		console.log(this.path, x, y, this.x, this.y);
+		//this.color = "silver";
 	}
 }
 
@@ -149,6 +160,12 @@ class Game {
 			s.draw();
 		});
 	}
+
+	checkForClicked(x, y) {
+		this.shapes.forEach((s) => {
+			s.checkForClicked(x, y);
+		});
+	}
 }
 
 let game = new Game();
@@ -173,4 +190,5 @@ window.requestAnimationFrame(gameLoop);
 
 canvas.addEventListener("click", (ev) => {
 	console.log("mouse event", ev.offsetX, ev.offsetY);
+	game.checkForClicked(ev.offsetX, ev.offsetY);
 });
