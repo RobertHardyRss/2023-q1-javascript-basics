@@ -5,6 +5,8 @@
 }
 
 body {
+	background-color: black;
+	color: white;
 	width: 100vw;
 	height: 100vh;
 	display: flex;
@@ -16,5 +18,9 @@ body {
 #game-canvas {
 	width: 800px;
 	height: 600px;
-	border: solid 1px black;
+	border: solid 1px yellow;
+}
+
+#score-canvas {
+	border: solid 1px limegreen;
 }
