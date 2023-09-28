@@ -8,8 +8,24 @@ const ctx = canvas.getContext("2d");
 canvas.width = 800;
 canvas.height = 600;
 
+/** @type {HTMLCanvasElement} */
+//@ts-ignore canvas is an HTMLCanvasElement
+const scoreCanvas = document.getElementById("score-canvas");
+/** @type {CanvasRenderingContext2D} */
+//@ts-ignore we know ctx is not null
+const scoreCtx = scoreCanvas.getContext("2d");
+scoreCanvas.width = 800;
+scoreCanvas.height = 60;
+
 class ClickShape {
-	constructor() {
+	/**
+	 * @param {CanvasRenderingContext2D} [ctx]
+	 */
+	constructor(ctx) {
+		/** @type {CanvasRenderingContext2D} */
+		//@ts-ignore
+		this.ctx = ctx;
+
 		this.x = 0;
 		this.y = 0;
 
@@ -70,11 +86,11 @@ class ClickShape {
 	}
 
 	draw() {
-		ctx.fillStyle = this.isClicked ? "silver" : this.color;
+		this.ctx.fillStyle = this.isClicked ? "silver" : this.color;
 
 		this.path = new Path2D();
 		this.path.rect(this.x, this.y, this.width, this.width);
-		ctx.fill(this.path);
+		this.ctx.fill(this.path);
 		//ctx.fillRect(this.x, this.y, this.width, this.width);
 	}
 
@@ -107,11 +123,22 @@ class Game {
 
 		this.targetColor = this.getRandomColor();
 
+		this.targetShape = this.getRandomTargetShape();
+
 		/**@type {Array<ClickShape>} */
 		this.shapes = [];
 
 		this.spawnInterval = 500; // milliseconds
 		this.lastSpawnTime = 0;
+	}
+
+	getRandomTargetShape() {
+		let s = new ClickShape(scoreCtx);
+		s.color = this.targetColor;
+		s.width = scoreCanvas.height * 0.8;
+		s.x = scoreCanvas.width / 2 - s.width / 2;
+		s.y = 5;
+		return s;
 	}
 
 	getRandomColor() {
@@ -130,7 +157,7 @@ class Game {
 		// reset our last spawn time
 		this.lastSpawnTime = 0;
 
-		let s = new ClickShape();
+		let s = new ClickShape(ctx);
 		s.color = this.getRandomColor();
 		s.y = 0 - s.width;
 
@@ -160,6 +187,12 @@ class Game {
 		this.shapes.forEach((s) => {
 			s.draw();
 		});
+
+		scoreCtx.font = "50px fantasy";
+		scoreCtx.fillStyle = "red";
+		scoreCtx.fillText(`Score: ${this.score}`, 0, 55);
+
+		this.targetShape.draw();
 	}
 
 	checkForClicked(x, y) {
@@ -195,6 +228,7 @@ let currentTime = 0;
 
 let gameLoop = function (timestamp) {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	scoreCtx.clearRect(0, 0, scoreCanvas.width, scoreCanvas.height);
 
 	let elapsedTime = timestamp - currentTime;
 	currentTime = timestamp;
