@@ -19,11 +19,10 @@ scoreCanvas.height = 60;
 
 class ClickShape {
 	/**
-	 * @param {CanvasRenderingContext2D} [ctx]
+	 * @param {CanvasRenderingContext2D} ctx
 	 */
 	constructor(ctx) {
 		/** @type {CanvasRenderingContext2D} */
-		//@ts-ignore
 		this.ctx = ctx;
 
 		this.x = 0;
@@ -85,14 +84,7 @@ class ClickShape {
 		this.y += this.yDirection * this.speed;
 	}
 
-	draw() {
-		this.ctx.fillStyle = this.isClicked ? "silver" : this.color;
-
-		this.path = new Path2D();
-		this.path.rect(this.x, this.y, this.width, this.width);
-		this.ctx.fill(this.path);
-		//ctx.fillRect(this.x, this.y, this.width, this.width);
-	}
+	draw() {}
 
 	checkForClicked(x, y) {
 		if (this.isClicked) {
@@ -103,6 +95,41 @@ class ClickShape {
 		this.isClicked = ctx.isPointInPath(this.path, x, y);
 		console.log(this.path, x, y, this.x, this.y);
 		//this.color = "silver";
+	}
+}
+
+class SquareClickShape extends ClickShape {
+	/**
+	 * @param {CanvasRenderingContext2D} ctx
+	 */
+	constructor(ctx) {
+		super(ctx);
+	}
+
+	draw() {
+		this.ctx.fillStyle = this.isClicked ? "silver" : this.color;
+
+		this.path = new Path2D();
+		this.path.rect(this.x, this.y, this.width, this.width);
+		this.ctx.fill(this.path);
+	}
+}
+
+class CircleClickShape extends ClickShape {
+	/**
+	 * @param {CanvasRenderingContext2D} ctx
+	 */
+	constructor(ctx) {
+		super(ctx);
+	}
+
+	draw() {
+		this.ctx.fillStyle = this.isClicked ? "silver" : this.color;
+
+		this.path = new Path2D();
+		//this.path.rect(this.x, this.y, this.width, this.width);
+		this.path.arc(this.x, this.y, this.width / 2, 0, Math.PI * 2);
+		this.ctx.fill(this.path);
 	}
 }
 
@@ -121,8 +148,6 @@ class Game {
 			"violet",
 		];
 
-		this.targetColor = this.getRandomColor();
-
 		this.targetShape = this.getRandomTargetShape();
 
 		/**@type {Array<ClickShape>} */
@@ -134,7 +159,7 @@ class Game {
 
 	getRandomTargetShape() {
 		let s = new ClickShape(scoreCtx);
-		s.color = this.targetColor;
+		s.color = this.getRandomColor();
 		s.width = scoreCanvas.height * 0.8;
 		s.x = scoreCanvas.width / 2 - s.width / 2;
 		s.y = 5;
@@ -211,9 +236,11 @@ class Game {
 		// get the last shape drawn that was clicked and see if it
 		// matches our target color
 		if (
-			clickedShapes[clickedShapes.length - 1].color === this.targetColor
+			clickedShapes[clickedShapes.length - 1].color ===
+			this.targetShape.color
 		) {
 			this.score++;
+			this.targetShape = this.getRandomTargetShape();
 		} else {
 			this.isGameOver = true;
 		}
