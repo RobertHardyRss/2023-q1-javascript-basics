@@ -127,7 +127,6 @@ class CircleClickShape extends ClickShape {
 		this.ctx.fillStyle = this.isClicked ? "silver" : this.color;
 
 		this.path = new Path2D();
-		//this.path.rect(this.x, this.y, this.width, this.width);
 		this.path.arc(this.x, this.y, this.width / 2, 0, Math.PI * 2);
 		this.ctx.fill(this.path);
 	}
@@ -182,15 +181,19 @@ class Game {
 		// reset our last spawn time
 		this.lastSpawnTime = 0;
 
-		let s = new ClickShape(ctx);
+		let randShape = Math.random();
+
+		let s =
+			randShape < 0.5
+				? new SquareClickShape(ctx)
+				: new CircleClickShape(ctx);
+
 		s.color = this.getRandomColor();
 		s.y = 0 - s.width;
 
 		let randX = Math.floor(Math.random() * (canvas.width / s.width));
 
 		s.x = randX * s.width;
-
-		//console.log(s);
 
 		// push the new shape into our array
 		this.shapes.push(s);
