@@ -230,13 +230,27 @@ class Game {
 	}
 
 	draw() {
-		this.shapes.forEach((s) => {
-			s.draw();
-		});
-
 		scoreCtx.font = "50px fantasy";
 		scoreCtx.fillStyle = "red";
 		scoreCtx.fillText(`Score: ${this.score}`, 0, 55);
+
+		if (this.isGameOver) {
+			// write out game over!
+			ctx.save();
+			ctx.fillStyle = "red";
+			ctx.strokeStyle = "yellow";
+			ctx.font = "60px Comic Sans MS";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			ctx.fillText("GAME OVER!", canvas.width / 2, canvas.height / 2);
+			ctx.strokeText("GAME OVER!", canvas.width / 2, canvas.height / 2);
+			ctx.restore();
+			return;
+		}
+
+		this.shapes.forEach((s) => {
+			s.draw();
+		});
 
 		this.targetShape.draw();
 	}
@@ -287,7 +301,9 @@ let gameLoop = function (timestamp) {
 	game.update(elapsedTime);
 	game.draw();
 
-	window.requestAnimationFrame(gameLoop);
+	if (game.isGameOver === false) {
+		window.requestAnimationFrame(gameLoop);
+	}
 };
 
 window.requestAnimationFrame(gameLoop);
