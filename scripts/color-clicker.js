@@ -17,13 +17,22 @@ const scoreCtx = scoreCanvas.getContext("2d");
 scoreCanvas.width = 800;
 scoreCanvas.height = 60;
 
+const direction = {
+	down: "down",
+	up: "up",
+	right: "right",
+	left: "left",
+};
+
 class ClickShape {
 	/**
 	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {string} moveDirection
 	 */
-	constructor(ctx) {
+	constructor(ctx, moveDirection) {
 		/** @type {CanvasRenderingContext2D} */
 		this.ctx = ctx;
+		this.moveDirection = moveDirection;
 
 		this.type = null;
 
@@ -32,8 +41,19 @@ class ClickShape {
 
 		this.width = 100;
 
-		this.xDirection = 0;
-		this.yDirection = 1;
+		this.xDirection =
+			this.moveDirection === direction.right
+				? 1
+				: this.moveDirection === direction.left
+				? -1
+				: 0;
+
+		this.yDirection =
+			this.moveDirection === direction.down
+				? 1
+				: this.moveDirection === direction.up
+				? -1
+				: 0;
 
 		this.speed = 5;
 
@@ -103,9 +123,10 @@ class ClickShape {
 class SquareClickShape extends ClickShape {
 	/**
 	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {string} moveDirection
 	 */
-	constructor(ctx) {
-		super(ctx);
+	constructor(ctx, moveDirection) {
+		super(ctx, moveDirection);
 		this.type = "square";
 	}
 
@@ -121,9 +142,10 @@ class SquareClickShape extends ClickShape {
 class CircleClickShape extends ClickShape {
 	/**
 	 * @param {CanvasRenderingContext2D} ctx
+	 * @param {string} moveDirection
 	 */
-	constructor(ctx) {
-		super(ctx);
+	constructor(ctx, moveDirection) {
+		super(ctx, moveDirection);
 		this.type = "circle";
 	}
 
@@ -166,6 +188,9 @@ class Game {
 
 		this.spawnInterval = 350; // milliseconds
 		this.lastSpawnTime = 0;
+		this.difficultyLevel = 1;
+		// update difficulty for every x number of points scored
+		this.difficultyInterval = 3;
 	}
 
 	getRandomTargetShape() {
@@ -173,8 +198,8 @@ class Game {
 
 		let s =
 			randShape < 0.5
-				? new SquareClickShape(scoreCtx)
-				: new CircleClickShape(scoreCtx);
+				? new SquareClickShape(scoreCtx, direction.down)
+				: new CircleClickShape(scoreCtx, direction.down);
 
 		s.color = this.getRandomColor();
 		s.width = scoreCanvas.height * 0.8;
@@ -201,10 +226,30 @@ class Game {
 
 		let randShape = Math.random();
 
+		let spawnDirection = direction.down;
+
+		if (this.difficultyLevel == 2) {
+			spawnDirection =
+				Math.random() > 0.5 ? direction.up : direction.down;
+		} else if (this.difficultyLevel == 3) {
+			let r = Math.floor(Math.random() * 3);
+			switch (r) {
+				case 0:
+					spawnDirection = direction.down;
+					break;
+				case 1:
+					spawnDirection = direction.up;
+					break;
+				case 2:
+					spawnDirection = direction.right;
+					break;
+			}
+		}
+
 		let s =
 			randShape < 0.5
-				? new SquareClickShape(ctx)
-				: new CircleClickShape(ctx);
+				? new SquareClickShape(ctx, spawnDirection)
+				: new CircleClickShape(ctx, spawnDirection);
 
 		s.color = this.getRandomColor();
 		s.y = 0 - s.width;
@@ -245,6 +290,9 @@ class Game {
 			ctx.fillText("GAME OVER!", canvas.width / 2, canvas.height / 2);
 			ctx.strokeText("GAME OVER!", canvas.width / 2, canvas.height / 2);
 			ctx.restore();
+
+			// make sure we don't draw anything else if the
+			// game is over
 			return;
 		}
 
@@ -278,9 +326,16 @@ class Game {
 			clickedShape.type === this.targetShape.type
 		) {
 			this.score++;
+			this.updateDifficulty();
 			this.targetShape = this.getRandomTargetShape();
 		} else {
 			this.isGameOver = true;
+		}
+	}
+
+	updateDifficulty() {
+		if (this.score % this.difficultyInterval === 0) {
+			this.difficultyLevel++;
 		}
 	}
 }
