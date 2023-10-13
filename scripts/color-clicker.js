@@ -475,6 +475,9 @@ class Game {
 	updateDifficulty() {
 		if (this.score % this.difficultyInterval === 0) {
 			this.difficultyLevel++;
+			if (this.difficultyLevel === 5) {
+				this.spawnInterval = 200;
+			}
 		}
 	}
 }
