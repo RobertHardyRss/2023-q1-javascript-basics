@@ -43,7 +43,7 @@ class ClickShape {
 		this.xDirection = this.initDirectionX();
 		this.yDirection = this.initDirectionY();
 
-		this.speed = 5;
+		this.speed = 7;
 
 		this.isVisible = true;
 		this.isClicked = false;
@@ -290,6 +290,9 @@ class Game {
 		this.difficultyLevel = 1;
 		// update difficulty for every x number of points scored
 		this.difficultyInterval = 3;
+
+		this.targetSpawnInterval = 10;
+		this.spawnsWithoutTarget = 0;
 	}
 
 	getRandomTargetShape() {
@@ -320,11 +323,39 @@ class Game {
 		}
 	}
 
+	/**
+	 * @param {CanvasRenderingContext2D} context
+	 * @param {string} direction
+	 * @returns ClickShape
+	 */
+	getTargetShape(context, direction) {
+		let shape;
+		switch (this.targetShape.type) {
+			case "circle":
+				shape = new CircleClickShape(context, direction);
+				break;
+			case "triangle":
+				shape = new TriangleClickShape(context, direction);
+				break;
+			case "5-point-star":
+				shape = new StarClickShape(context, direction);
+				break;
+			default:
+				shape = new SquareClickShape(context, direction);
+				break;
+		}
+		shape.color = this.targetShape.color;
+		return shape;
+	}
+
 	getRandomColor() {
 		let randomIndex = Math.floor(Math.random() * this.colors.length);
 		return this.colors[randomIndex];
 	}
 
+	/**
+	 * @param {number} elapsedTime
+	 */
 	spawnShape(elapsedTime) {
 		this.lastSpawnTime += elapsedTime;
 		if (this.lastSpawnTime < this.spawnInterval) {
@@ -353,10 +384,28 @@ class Game {
 		let s = this.getRandomShape(ctx, spawnDirection);
 		s.color = this.getRandomColor();
 
+		let isTargetShape =
+			s.color === this.targetShape.color &&
+			s.type === this.targetShape.type;
+
+		if (isTargetShape) {
+			this.spawnsWithoutTarget = 0;
+		} else {
+			this.spawnsWithoutTarget++;
+		}
+
+		if (this.spawnsWithoutTarget >= this.targetSpawnInterval) {
+			s = this.getTargetShape(ctx, spawnDirection);
+			this.spawnsWithoutTarget = 0;
+		}
+
 		// push the new shape into our array
 		this.shapes.push(s);
 	}
 
+	/**
+	 * @param {number} elapsedTime
+	 */
 	update(elapsedTime) {
 		this.spawnShape(elapsedTime);
 
